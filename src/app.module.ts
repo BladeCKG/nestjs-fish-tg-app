@@ -1,13 +1,12 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 
+import { ScheduleModule } from '@nestjs/schedule';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ConfigModule } from './config/config.module';
 import { ConfigService } from './config/config.service';
-import { ClientModule } from './modules/client/client.module';
-import { ProductModule } from './modules/product/product.module';
-import { SaleModule } from './modules/sale/sale.module';
+import { FishingModule } from './modules/fishing/fishing.module';
 import { UserModule } from './modules/user/user.module';
 
 @Module({
@@ -18,10 +17,9 @@ import { UserModule } from './modules/user/user.module';
             inject: [ConfigService],
             useFactory: async (configService: ConfigService) => configService.getMongoConfig(),
         }),
-        ClientModule,
-        ProductModule,
-        SaleModule,
+        ScheduleModule.forRoot(),
         UserModule,
+        FishingModule,
     ],
     controllers: [AppController],
     providers: [AppService],

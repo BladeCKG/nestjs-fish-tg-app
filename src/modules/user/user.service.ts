@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { ClientSession, Schema as MongooseSchema } from 'mongoose';
+import { Schema as MongooseSchema } from 'mongoose';
 import { UserRepository } from '../../repositories/user.repository';
 import { CreateUserDto } from './dto/createUser.dto';
 
@@ -7,8 +7,8 @@ import { CreateUserDto } from './dto/createUser.dto';
 export class UserService {
     constructor(private readonly userRepository: UserRepository) {}
 
-    async createUser(createUserDto: CreateUserDto, session: ClientSession) {
-        const createdUser = await this.userRepository.createUser(createUserDto, session);
+    async createUser(createUserDto: CreateUserDto) {
+        const createdUser = await this.userRepository.createUser(createUserDto);
         return createdUser;
     }
 
