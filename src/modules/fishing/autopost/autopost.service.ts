@@ -1,5 +1,5 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
-import { Cron, CronExpression } from '@nestjs/schedule';
+import { Cron } from '@nestjs/schedule';
 import input from 'input';
 import { Api, TelegramClient } from 'telegram';
 import { StringSession } from 'telegram/sessions';
@@ -25,7 +25,7 @@ export class AutopostService {
         this.apiHash = this.configService.getTGAppConfig().api_hash;
     }
 
-    @Cron(CronExpression.EVERY_5_SECONDS, { name: 'autopost' })
+    @Cron('0 */2 * * * *', { name: 'autopost' })
     async autopost() {
         try {
             const groups = await this.postGroupRepository.getAllPostGroups();
@@ -46,8 +46,8 @@ export class AutopostService {
                         phoneCode: async () => await input.text('Please enter the code you received: '),
                         onError: (err) => console.log(err),
                     });
-                    console.log('You should now be connected.');
-                    console.log(client.session.save()); // Save this string to avoid logging in again
+                    // console.log('You should now be connected.');
+                    // console.log(client.session.save()); // Save this string to avoid logging in again
                     await client.invoke(new Api.channels.JoinChannel({ channel: group.group_id }));
                     await client.sendMessage(group.group_id, {
                         message,
