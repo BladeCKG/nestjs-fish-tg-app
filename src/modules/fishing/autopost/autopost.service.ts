@@ -1,7 +1,7 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { Cron } from '@nestjs/schedule';
 import input from 'input';
-import { Api, TelegramClient } from 'telegram';
+import { TelegramClient } from 'telegram';
 import { StringSession } from 'telegram/sessions';
 import { ConfigService } from '../../../config/config.service';
 import { ForwardGroupRepository } from '../../../repositories/forward_group.repository';
@@ -48,10 +48,12 @@ export class AutopostService {
                     });
                     // console.log('You should now be connected.');
                     // console.log(client.session.save()); // Save this string to avoid logging in again
-                    await client.invoke(new Api.channels.JoinChannel({ channel: group.group_id }));
+                    // await client.invoke(new Api.channels.JoinChannel({ channel: group.group_id }));
                     await client.sendMessage(group.group_id, {
                         message,
                     });
+                    await client.disconnect();
+                    await client.destroy();
                 } catch (error) {
                     this.logger.error(`Error in Posting Message to Group [${group.group_id}] by User [${name}]: ${error.stack}`);
                 }
