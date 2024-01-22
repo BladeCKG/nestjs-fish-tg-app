@@ -25,6 +25,10 @@ export class FishingController {
         return this.fishingService.createGroupBot(createGroupBotDto);
     }
 
+    @Post('/joinallpostgroups')
+    async joinAllPostGroups() {
+        return this.fishingService.joinAllPostGroups();
+    }
     // @Get()
     // findAll() {
     //     return this.fishingService.findAll();

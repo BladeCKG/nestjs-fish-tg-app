@@ -83,4 +83,15 @@ export class UserRepository {
 
         return user;
     }
+
+    async getAllUsers() {
+        let users: User[];
+        try {
+            users = await this.userModel.find();
+        } catch (error) {
+            throw new InternalServerErrorException(error);
+        }
+
+        return users;
+    }
 }
