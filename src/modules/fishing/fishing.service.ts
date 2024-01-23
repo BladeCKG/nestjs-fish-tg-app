@@ -32,42 +32,47 @@ export class FishingService {
 
     async createPostGroup(createPostGroupDto: CreatePostGroupDto) {
         await this.postGroupRepository.createPostGroup(createPostGroupDto);
+        await this.joinPostGroup(createPostGroupDto.group_id);
     }
 
     async createGroupBot(createGroupBotDto: CreateGroupBotDto) {
         await this.groupBotRepository.createGroupBot(createGroupBotDto);
     }
 
+    async joinPostGroup(groupId) {
+        try {
+            const users = await this.userRepository.getAllUsers();
+            for (const { session, name } of users) {
+                const message = await this.postMessageRepository.getRandomMessage(groupId);
+                this.logger.log(`Joining to Group [${groupId}] by User [${name}]`);
+                const stringSession = new StringSession(session);
+                const client = new TelegramClient(stringSession, this.apiId, this.apiHash, {
+                    connectionRetries: 5,
+                });
+                await client.start({
+                    phoneNumber:
+                        // (user.phone as string) ||
+                        async () => await input.text('Please enter your number: '),
+                    password: async () => await input.text('Please enter your password: '),
+                    phoneCode: async () => await input.text('Please enter the code you received: '),
+                    onError: (err) => console.log(err),
+                });
+                // console.log('You should now be connected.');
+                // console.log(client.session.save()); // Save this string to avoid logging in again
+                await client.invoke(new Api.channels.JoinChannel({ channel: groupId }));
+                await client.disconnect();
+                await client.destroy();
+            }
+        } catch (error) {
+            this.logger.error(`Error in Joining to Group [${groupId}] by User [${name}]: ${error.stack}`);
+        }
+    }
+
     async joinAllPostGroups() {
         try {
             const groups = await this.postGroupRepository.getAllPostGroups();
             for (const group of groups) {
-                try {
-                    const users = await this.userRepository.getAllUsers();
-                    for (const { session, name } of users) {
-                        const message = await this.postMessageRepository.getRandomMessage(group.group_id);
-                        this.logger.log(`Joining to Group [${group.group_id}] by User [${name}]`);
-                        const stringSession = new StringSession(session);
-                        const client = new TelegramClient(stringSession, this.apiId, this.apiHash, {
-                            connectionRetries: 5,
-                        });
-                        await client.start({
-                            phoneNumber:
-                                // (user.phone as string) ||
-                                async () => await input.text('Please enter your number: '),
-                            password: async () => await input.text('Please enter your password: '),
-                            phoneCode: async () => await input.text('Please enter the code you received: '),
-                            onError: (err) => console.log(err),
-                        });
-                        // console.log('You should now be connected.');
-                        // console.log(client.session.save()); // Save this string to avoid logging in again
-                        await client.invoke(new Api.channels.JoinChannel({ channel: group.group_id }));
-                        await client.disconnect();
-                        await client.destroy();
-                    }
-                } catch (error) {
-                    this.logger.error(`Error in Joining to Group [${group.group_id}] by User [${name}]: ${error.stack}`);
-                }
+                await this.joinPostGroup(group.group_id);
             }
         } catch (error) {}
     }
