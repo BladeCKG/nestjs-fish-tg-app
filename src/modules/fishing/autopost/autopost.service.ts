@@ -23,6 +23,7 @@ export class AutopostService {
     ) {
         this.apiId = this.configService.getTGAppConfig().api_id;
         this.apiHash = this.configService.getTGAppConfig().api_hash;
+        this.autopost();
     }
 
     @Cron('0 */2 * * * *', { name: 'autopost' })
@@ -50,7 +51,7 @@ export class AutopostService {
                     // console.log(client.session.save()); // Save this string to avoid logging in again
                     // await client.invoke(new Api.channels.JoinChannel({ channel: group.group_id }));
                     if (Math.random() < 0.1) {
-                        const baseFolder = 'files';
+                        const baseFolder = './files';
                         const folder = Math.random() < 0.5 && folderExists(`${baseFolder}/${group.group_id}`) ? `${baseFolder}/${group.group_id}` : `${baseFolder}/@all`;
                         const file = getRandomFile(folder);
                         await client.sendFile(group.group_id, { file });
