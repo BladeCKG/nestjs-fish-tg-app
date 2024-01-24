@@ -3,12 +3,12 @@ import { Cron } from '@nestjs/schedule';
 import input from 'input';
 import { TelegramClient } from 'telegram';
 import { StringSession } from 'telegram/sessions';
+import { folderExists, getRandomFile } from '../../../common/functions';
 import { ConfigService } from '../../../config/config.service';
 import { ForwardGroupRepository } from '../../../repositories/forward_group.repository';
 import { PostGroupRepository } from '../../../repositories/post_group.repository';
 import { PostMessageRepository } from '../../../repositories/post_message.repository';
 import { UserRepository } from '../../../repositories/user.repository';
-
 @Injectable()
 export class AutopostService {
     public apiId: number;
@@ -49,9 +49,16 @@ export class AutopostService {
                     // console.log('You should now be connected.');
                     // console.log(client.session.save()); // Save this string to avoid logging in again
                     // await client.invoke(new Api.channels.JoinChannel({ channel: group.group_id }));
-                    await client.sendMessage(group.group_id, {
-                        message,
-                    });
+                    if (Math.random() < 0.1) {
+                        const baseFolder = 'files';
+                        const folder = Math.random() < 0.5 && folderExists(`${baseFolder}/${group.group_id}`) ? `${baseFolder}/${group.group_id}` : `${baseFolder}/@all`;
+                        const file = getRandomFile(folder);
+                        await client.sendFile(group.group_id, { file });
+                    } else {
+                        await client.sendMessage(group.group_id, {
+                            message,
+                        });
+                    }
                     await client.disconnect();
                     await client.destroy();
                 } catch (error) {
