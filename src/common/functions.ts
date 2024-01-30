@@ -1,3 +1,4 @@
+import axios from 'axios';
 import * as fs from 'fs';
 import * as path from 'path';
 
@@ -57,3 +58,43 @@ export function folderExists(folderPath: string): boolean {
 // } else {
 //     console.log('The folder does not exist.');
 // }
+
+async function downloadFile(url: string, destinationPath: string): Promise<void> {
+    try {
+        // Make a GET request to the file URL
+        const response = await axios.get(url, { responseType: 'stream' });
+
+        // Create a write stream to save the file
+        const writer = fs.createWriteStream(destinationPath);
+
+        // Pipe the response stream into the writer
+        response.data.pipe(writer);
+
+        // Wait for the writer to finish writing the file
+        await new Promise((resolve, reject) => {
+            writer.on('finish', resolve);
+            writer.on('error', reject);
+        });
+
+        console.log(`File downloaded and saved to: ${destinationPath}`);
+    } catch (error) {
+        console.error('Error downloading file:', error);
+    }
+}
+
+function bytesToFile(bytes: Uint8Array, filePath: string): void {
+    try {
+        // Create a write stream to save the file
+        const writer = fs.createWriteStream(filePath);
+
+        // Write the bytes to the file
+        writer.write(Buffer.from(bytes));
+
+        // End the writing process
+        writer.end();
+
+        console.log(`File saved to: ${filePath}`);
+    } catch (error) {
+        console.error('Error saving file:', error);
+    }
+}

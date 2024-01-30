@@ -10,6 +10,7 @@ export class PostGroupRepository {
     async createPostGroup(group: CreatePostGroupDto) {
         let postGroup = new this.postGroupModel({
             group_id: group.group_id,
+            slug: group.group_slug,
         });
 
         try {
