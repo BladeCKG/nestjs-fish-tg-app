@@ -5,6 +5,9 @@ import { Document } from 'mongoose';
 export class PostGroup extends Document {
     @Prop({ required: true })
     group_id: string;
+
+    @Prop({})
+    slug: string;
 }
 
 export const PostGroupSchema = SchemaFactory.createForClass(PostGroup);
